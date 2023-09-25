@@ -1,40 +1,45 @@
-#include <stdio.h> //Biblioteca fundamental do código, com funções e macros para entrada e saída de dados
-#include <stdlib.h> //Biblioteca com funções para gerenciamento de memória, conversões, ordenações dentre outros
-#include <string.h> //Biblioteca com funções para manipulação de strings
-#include <locale.h> //Biblioteca para lidar com localização e internacionalização de programas
+#include <stdio.h> //Biblioteca fundamental do cÃ³digo, com funÃ§Ãµes e macros para entrada e saÃ­da de dados
+#include <stdlib.h> //Biblioteca com funÃ§Ãµes para gerenciamento de memÃ³ria, conversÃµes, ordenaÃ§Ãµes dentre outros
+#include <string.h> //Biblioteca com funÃ§Ãµes para manipulaÃ§Ã£o de strings
+#include <locale.h> //Biblioteca para lidar com localizaÃ§Ã£o e internacionalizaÃ§Ã£o de programas
 
-void swap(char **a, char **b) {  //Função para troca. Usando ponteiros de ponteiros, de modo que permita a troca de posição das strings
+void swap(char **a, char **b) {  //FunÃ§Ã£o para troca. Usando ponteiros de ponteiros, de modo que permita a troca de posiÃ§Ã£o das strings
     char *temp = *a;
     *a = *b;
     *b = temp;
 }
 
-int particao(char *vetor[], int inf, int sup) { //Função para encontrar a posição correta do pivô no vetor e particioná-lo
-    char *pivot = vetor[sup]; //Escolhendo o último elemento como pivô
-    int i = (inf - 1); // O índice do menor elemento 
+int particao(char *vetor[], int inf, int sup, int *comparacoes, int *trocas) { //FunÃ§Ã£o para encontrar a posiÃ§Ã£o correta do pivÃ´ no vetor e particionÃ¡-lo
+    char *pivot = vetor[sup]; //Escolhendo o Ãºltimo elemento como pivÃ´
+    int i = (inf - 1); // O Ã­ndice do menor elemento 
 
     for (int j = inf; j <= sup - 1; j++) {
-        if (strcmp(vetor[j], pivot) < 0) { //Compara as duas strings, se a string 'vetor[j]' for menor que a string 'pivot' a condição é verdadeira 
+    	(*comparacoes)++;
+        if (strcmp(vetor[j], pivot) < 0) { //Compara as duas strings, se a string 'vetor[j]' for menor que a string 'pivot' a condiÃ§Ã£o Ã© verdadeira 
             i++;
-            swap(&vetor[i], &vetor[j]); //Chamando função para troca (swap) entre os índices
+            swap(&vetor[i], &vetor[j]); //Chamando funÃ§Ã£o para troca (swap) entre os Ã­ndices
+            (*trocas)++;
         }
     }
-    swap(&vetor[i + 1], &vetor[sup]); //Chamando função para troca (swap) entre os índices
-    return (i + 1); //Retornando índice 
+    swap(&vetor[i + 1], &vetor[sup]); //Chamando funÃ§Ã£o para troca (swap) entre os Ã­ndices
+    (*trocas)++;
+    return (i + 1); //Retornando Ã­ndice 
 }
 
-void quicksort(char *vetor[], int inf, int sup) {
+void quicksort(char *vetor[], int inf, int sup, int *comparacoes, int *trocas) {
     if (inf < sup) {
-        int pi = particao(vetor, inf, sup); //Chamando a função 'particao' para encontrar o pivô e particioná-lo
-        quicksort(vetor, inf, pi - 1); //Chamando recursivamente a função 'quicksort' a esquerda do pivô
-        quicksort(vetor, pi + 1, sup); //Chamando recursivamente a função 'quicksort' a direita do pivô
+        int pi = particao(vetor, inf, sup, comparacoes, trocas); //Chamando a funÃ§Ã£o 'particao' para encontrar o pivÃ´ e particionÃ¡-lo
+        quicksort(vetor, inf, pi - 1, comparacoes, trocas); //Chamando recursivamente a funÃ§Ã£o 'quicksort' a esquerda do pivÃ´
+        quicksort(vetor, pi + 1, sup, comparacoes, trocas); //Chamando recursivamente a funÃ§Ã£o 'quicksort' a direita do pivÃ´
     }
 }
 
 int main() {
-	setlocale(LC_ALL, "Portuguese"); //Definir a configuração regional, para aceitar caracteres especiais e acentuação 
+	setlocale(LC_ALL, "Portuguese"); //Definir a configuraÃ§Ã£o regional, para aceitar caracteres especiais e acentuaÃ§Ã£o 
 	
-    char *arr[20] = {"maca", "banana", "pera", "uva", "laranja", "abacaxi", "limão", "manga", "abacate", "kiwi", "cereja", "morango", "pêssego", "goiaba", "melancia", "framboesa", "amora", "caqui", "figo", "papaya"};
+	FILE *arquivo;
+	
+    char *arr[20] = {"maca", "banana", "pera", "uva", "laranja", "abacaxi", "limÃ£o", "manga", "abacate", "kiwi", "cereja", "morango", "pÃªssego", "goiaba", "melancia", "framboesa", "amora", "caqui", "figo", "papaya"};
     int n = sizeof(arr) / sizeof(arr[0]); //Calculando o tamanho do vetor
 
     printf("Vetor desordenado:\n");
@@ -44,13 +49,33 @@ int main() {
     
     printf("\n\nPressione qualquer tecla para ordenar o vetor acima!\n\n");
     system("pause");
-
-    quicksort(arr, 0, n - 1); //Chamando função para ordenador vetor 
+    
+	int comparacoes=0;
+	int trocas=0;
+    quicksort(arr, 0, n - 1, &comparacoes, &trocas); //Chamando funÃ§Ã£o para ordenador vetor 
+    
+    arquivo=fopen("VetorOrdenado.txt", "w+"); //Abertura do arquivo em modo de escrita e criaÃ§Ã£o
 
     printf("\nVetor ordenado:\n"); //Loop para imprimir vetor ordenado
     for (int i = 0; i < n; i++) {
         printf("%s ", arr[i]);
+        fprintf(arquivo,"%s\n", arr[i]);
     }
+    
+    printf("\n\nNÃºmero de comparaÃ§Ãµes: %d\n", comparacoes); //Imprimindo nÃºmero de comparaÃ§Ãµes feitas
+    printf("NÃºmero de trocas: %d\n", trocas); //Imprimindo nÃºmero de trocas feitas
+
+	if (n % 2 == 0) { // Verificando se o vetor tem um nÃºmero par de elementos
+		int indice1 = n / 2 - 1; //Definindo mediana
+    	int indice2 = n / 2; //Definindo mediana
+		printf("Mediana: %s e %s\n", arr[indice1], arr[indice2]);
+		fprintf(arquivo,"Mediana: %s e %s\n", arr[indice1], arr[indice2]);
+	}
+	else { // Vetor com nÃºmero Ã­mpar de elementos
+		int indice = n / 2;
+		printf("Mediana: %s\n", arr[indice]);
+		fprintf(arquivo,"Mediana: %s\n", arr[indice]);
+	} 
     
     printf("\n\n");
     system("pause");
